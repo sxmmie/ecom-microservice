@@ -6,6 +6,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateProduct(t *testing.T) {
@@ -32,8 +33,12 @@ func TestCreateProduct(t *testing.T) {
 	}
 
 	mock.ExpectExec("INSERT INTO products (name, image, category, description, rating, num_reviews, price, count_in_stock) VALUES (?, ?, ?, ?,?, ?, ?, ?)").WillReturnResult(sqlmock.NewResult(1, 1))
-	_, err = st.CreateProduct(context.Background(), p)
+	cp, err := st.CreateProduct(context.Background(), p)
 	if err != nil {
 		t.Fatalf("error creating product: %v", err)
 	}
+	require.NoError(t, err)
+	require.Equal(t, int64(1), cp.ID)
+	mock.ExpectationsWereMet()
+	require.NoError(t, err)
 }
